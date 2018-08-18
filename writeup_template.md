@@ -18,7 +18,7 @@ The goals / steps of this project are the following:
 [image1]: ./examples/car_not_car.png
 [image2]: ./examples/HOG_example.png
 [image3]: ./examples/sliding_window_pattern.png
-[image4]: ./examples/sliding_window.jpg
+[image4]: ./examples/sliding_window_results.png
 [image5]: ./examples/bboxes_and_heat.png
 [image6]: ./examples/labels_map.png
 [image7]: ./examples/output_bboxes.png
@@ -89,7 +89,7 @@ here you can see the pattern i am using with different colors for different wind
 
 #### 2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
-Ultimately I searched on two scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  Here are some example images:
+As shown in the table of parameters above i combine spatially binned color, histograms of color and the HOG-features. The combination of allof those features gave pretty promising results as you can see here:
 
 ![alt text][image4]
 ---
