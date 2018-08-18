@@ -17,7 +17,7 @@ The goals / steps of this project are the following:
 [//]: # (Image References)
 [image1]: ./examples/car_not_car.png
 [image2]: ./examples/HOG_example.png
-[image3]: ./examples/sliding_windows.jpg
+[image3]: ./examples/sliding_window_pattern.png
 [image4]: ./examples/sliding_window.jpg
 [image5]: ./examples/bboxes_and_heat.png
 [image6]: ./examples/labels_map.png
@@ -79,7 +79,11 @@ since i was not sure about the parameters for feature extraction i created a fun
 
 #### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
-I decided to search random window positions at random scales all over the image and came up with this (ok just kidding I didn't actually ;):
+I composed a pattern of sliding windows which have different sizes and boundaries. Basically use some `64x64` windows on a small area of the image `((300, 400) (1000, 480))`. I did this, because the small window sizes help finding cars that are more far away (and thus seem to be smaller due to the perspective). also the small size leads to a very fine grid, that helps to increase accuracy. unfortunately on the opposite such a small grid results in a high amount of windows, that have to be searched, which can become really slow. Thats why I especially limited the area of applying those small windows.
+Additionally i use seom `96x96, 128x128 and 192x192` windows, which i gave a broader region of the image to search for two reasons. 1) cars seem to be bigger when they are closer. and close cars might appear on the edges of the image in case of passing. 2) there won't fit many of those big windows, which lmits the performance impact, while a bigger search area might increase accuracy (to some extend).
+All those 'bigger' windows are limited only on the Y-axis `(380, 600)`, whereas they use the whole width of the image. (due to the former explained reasons).
+
+here you can see the pattern i am using with different colors for different window sizes:
 
 ![alt text][image3]
 
