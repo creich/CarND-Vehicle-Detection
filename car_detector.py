@@ -70,7 +70,11 @@ def draw_labeled_bboxes(img, labels):
     # Return the image
     return img
 
+heatmap_history = None
+
 def find_cars(image):
+    global heatmap_history
+
     #TODO might make sense, to convert png data during training, so we can save thos calulations during video processing
     # value conversion to fit into png-trained kernel
     image = image.astype(np.float32)/255
@@ -93,6 +97,8 @@ def find_cars(image):
 
     #window_img = draw_boxes(draw_image, hot_windows, color=(255, 255, 0), thick=3)
     heat = np.zeros_like(image[:,:,0]).astype(np.float)
+    if heatmap_history == None:
+        heatmap_history = np.stack([np.copy(heat), np.copy(heat), np.copy(heat), np.copy(heat), np.copy(heat)])
 
     # Add heat to each box in box list
     heat = add_heat(heat, hot_windows)
@@ -100,8 +106,11 @@ def find_cars(image):
     # Apply threshold to help remove false positives
     heat = apply_threshold(heat, 1)
 
-    # Visualize the heatmap when displaying    
+    # smooth heatmap data
     heatmap = np.clip(heat, 0, 255)
+    heatmap = heatmap.reshape((1, heatmap.shape[0], heatmap.shape[1]))
+    heatmap_history = np.vstack([heatmap_history, heatmap])[1:]
+    heatmap = np.mean(heatmap_history, axis=0)
 
     # Find final boxes from heatmap using label function
     labels = label(heatmap)
@@ -115,7 +124,7 @@ def find_cars(image):
 video_out = 'video_out.mp4'
 #video_in = VideoFileClip('test_video.mp4')
 video_in = VideoFileClip('project_video.mp4')
-#video_in = video_in.subclip(7, 9)
+#video_in = video_in.subclip(35, 37)
 
 print("processing video...")
 
