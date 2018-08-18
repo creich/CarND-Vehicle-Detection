@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 import glob
 from lesson_functions import *
+from sliding_window import my_sliding_window_pattern
 import time
 
 from scipy.ndimage.measurements import label
@@ -32,11 +33,6 @@ hist_bins = pickle_data['hist_bins']
 spatial_feat = pickle_data['spatial_feat']
 hist_feat = pickle_data['hist_feat']
 hog_feat = pickle_data['hog_feat']
-
-
-#y_start_stop = [380, 764]  #TODO should use multiples of windowsize
-y_start_stop = [380, 600]  #TODO should use multiples of windowsize
-overlap = 0.7
 
 
 def add_heat(heatmap, bbox_list):
@@ -81,14 +77,8 @@ def find_cars(image, heatmap_threshold = 7, return_heatmap=False, use_heatmap_hi
         image = image.astype(np.float32)/255
         #print(np.min(image), np.max(image), np.mean(image))
 
-    windows_96 = slide_window(image, x_start_stop = [None, None], y_start_stop = y_start_stop,
-                               xy_window=(96, 96), xy_overlap=(overlap, overlap))
-    windows_128 = slide_window(image, x_start_stop = [None, None], y_start_stop = y_start_stop,
-                               xy_window=(128, 128), xy_overlap=(overlap, overlap))
-    #windows_192 = slide_window(image, x_start_stop = [None, None], y_start_stop = y_start_stop,
-    #                           xy_window=(192, 192), xy_overlap=(overlap, overlap))
-    windows = windows_96 + windows_128
-    #windows = windows_128
+    windows = my_sliding_window_pattern(image.shape)
+
     hot_windows = search_windows(image, windows, svc, X_scaler, color_space=color_space,
                         spatial_size=spatial_size, hist_bins=hist_bins,
                         orient=orient, pix_per_cell=pix_per_cell,
@@ -132,18 +122,18 @@ def find_cars(image, heatmap_threshold = 7, return_heatmap=False, use_heatmap_hi
 
 
 
-VIDEO_MODE = False
+VIDEO_MODE = True
 # following settings are only used in image mode atm (but would work during video mode as well)
 RETURN_HEATMAP = True
 USE_HEATMAP_HISTORY = True
 USE_CONSECUTIVE_IMAGES = True
-NR_OF_CONSECUTIVE_IMAGES = 15
+NR_OF_CONSECUTIVE_IMAGES = 1260
 
 if VIDEO_MODE == True:
     video_out = 'video_out.mp4'
     #video_in = VideoFileClip('test_video.mp4')
     video_in = VideoFileClip('project_video.mp4')
-    video_in = video_in.subclip(27, 29)
+    video_in = video_in.subclip(23, 37)
 
     print("processing video...")
 
