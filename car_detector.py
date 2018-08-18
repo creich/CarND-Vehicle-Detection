@@ -97,20 +97,26 @@ def find_cars(image):
 
     #window_img = draw_boxes(draw_image, hot_windows, color=(255, 255, 0), thick=3)
     heat = np.zeros_like(image[:,:,0]).astype(np.float)
+
+    hist_length = 15
     if heatmap_history == None:
-        heatmap_history = np.stack([np.copy(heat), np.copy(heat), np.copy(heat), np.copy(heat), np.copy(heat)])
+        #TODO zero out the history or start with initial values?
+        heatmap_history = np.repeat([heat], hist_length, axis=0)
 
     # Add heat to each box in box list
     heat = add_heat(heat, hot_windows)
         
+    heatmap = heat.reshape((1, heat.shape[0], heat.shape[1]))
+    # append last measurment to history data
+    heatmap_history = np.vstack([heatmap_history, heatmap])[1:]
+    # smooth out the data
+    heatmap = np.sum(heatmap_history, axis=0)
+
     # Apply threshold to help remove false positives
-    heat = apply_threshold(heat, 1)
+    heatmap = apply_threshold(heatmap, 7)
 
     # smooth heatmap data
-    heatmap = np.clip(heat, 0, 255)
-    heatmap = heatmap.reshape((1, heatmap.shape[0], heatmap.shape[1]))
-    heatmap_history = np.vstack([heatmap_history, heatmap])[1:]
-    heatmap = np.mean(heatmap_history, axis=0)
+    heatmap = np.clip(heatmap, 0, 255)
 
     # Find final boxes from heatmap using label function
     labels = label(heatmap)
@@ -124,7 +130,7 @@ def find_cars(image):
 video_out = 'video_out.mp4'
 #video_in = VideoFileClip('test_video.mp4')
 video_in = VideoFileClip('project_video.mp4')
-#video_in = video_in.subclip(35, 37)
+video_in = video_in.subclip(27, 35)
 
 print("processing video...")
 
