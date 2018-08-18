@@ -20,8 +20,6 @@ The goals / steps of this project are the following:
 [image3]: ./examples/sliding_window_pattern.png
 [image4]: ./examples/sliding_window_results.png
 [image5]: ./examples/bboxes_and_heat.png
-[image6]: ./examples/labels_map.png
-[image7]: ./examples/output_bboxes.png
 [video1]: ./project_video.mp4
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
@@ -97,25 +95,19 @@ As shown in the table of parameters above i combine spatially binned color, hist
 ### Video Implementation
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
+
 Here's a [link to my video result](./project_video.mp4)
 
 
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
-I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
+To reduce false positives i created a heatmap history with the length of 15 frames. I choose 15 frames, since it is not too much to make the 'user experience' become sluggish, while still maintaining a good amount of samples to distinguish false from right positives most of the time.
+I used this history to sum up the heat for all pixels over the last 15 frames and used the result as a basis for the `scipy.ndimage.measurements.label()` function, to extract possible car positions. I used the labels to draw bounding boxes around the labeled area.
 
-Here's an example result showing the heatmap from a series of frames of video, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid on the last frame of video:
 
-### Here are six frames and their corresponding heatmaps:
+### Here are some frames including the final bounding boxes and their corresponding heatmaps:
 
 ![alt text][image5]
-
-### Here is the output of `scipy.ndimage.measurements.label()` on the integrated heatmap from all six frames:
-![alt text][image6]
-
-### Here the resulting bounding boxes are drawn onto the last frame in the series:
-![alt text][image7]
-
 
 
 ---
@@ -124,5 +116,8 @@ Here's an example result showing the heatmap from a series of frames of video, t
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
-
+obviously the current pipeline is not yet bullet proof and could not be used within a real life application.
+1) the classifier returns to many false positives. which could probably be reduced by e.g. using multiple classifiers at once and combine their results or train on different features. maybe it's even worth combining the detection of vehicles based on handcrafted features with some DNN techniques from earlier lessons.
+definitly there is room for improvement and will use this very amazing project for further investigation on this topic even after the end of this course :D
+2) despite the false positives, it might make sence to introduce a more sophisticated technique of object tracking, since the heatmap summation allone is not enough. but we should use the knowldege about the real world. like e.g. we limited the sliding window search area in a way, that we skip the sky, since we don't expect cars there. just like that we should enforce the knowledge, that a car (most likely) won't disappear out of the sudden. so if we've been pretty confident about recognising a car in previous frames, we should expect it to be there in future frame (according to physical laws). maybe we could even estimate/approximate the position of a car, by tracking it's last known speed and dircetion.
+3) performance is a big issue here. the feature extraction takes a huge amount of time for eacht frame, which makes it practically impossible to use that algorithm in a real car. the current implementation needs 3s per frame!
