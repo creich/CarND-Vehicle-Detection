@@ -71,13 +71,13 @@ def draw_labeled_bboxes(img, labels):
     return img
 
 def find_cars(image):
-    windows_64 = slide_window(image, x_start_stop = [None, None], y_start_stop = y_start_stop,
-                               xy_window=(64, 64), xy_overlap=(overlap, overlap))
+    windows_96 = slide_window(image, x_start_stop = [None, None], y_start_stop = y_start_stop,
+                               xy_window=(96, 96), xy_overlap=(overlap, overlap))
     windows_128 = slide_window(image, x_start_stop = [None, None], y_start_stop = y_start_stop,
                                xy_window=(128, 128), xy_overlap=(overlap, overlap))
-    windows_192 = slide_window(image, x_start_stop = [None, None], y_start_stop = y_start_stop,
-                               xy_window=(192, 192), xy_overlap=(overlap, overlap))
-    windows = windows_64 + windows_128 + windows_192
+    #windows_192 = slide_window(image, x_start_stop = [None, None], y_start_stop = y_start_stop,
+    #                           xy_window=(192, 192), xy_overlap=(overlap, overlap))
+    windows = windows_96 + windows_128
     #windows = windows_128
     hot_windows = search_windows(image, windows, svc, X_scaler, color_space=color_space,
                         spatial_size=spatial_size, hist_bins=hist_bins,
@@ -104,7 +104,8 @@ def find_cars(image):
 
 
 video_out = 'video_out.mp4'
-video_in = VideoFileClip('test_video.mp4')
+#video_in = VideoFileClip('test_video.mp4')
+video_in = VideoFileClip('project_video.mp4')
 
 print("processing video...")
 
