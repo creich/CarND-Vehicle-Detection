@@ -28,20 +28,8 @@ for image in images:
 print("found {} car samples and {} non car sample".format(len(cars), len(notcars)))
 
 
-## ========
-
 # feature parameters
-#color_space = 'YCrCb'         # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
-    # -> 0.9921
-#color_space = 'YUV'         # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
-    # -> getting an error now... 
-    # >> hog.py -> invalid value encountered in sqrt -> image = np.sqrt(image)
-    # which later leads to...
-    # >> ValueError: Input contains NaN, infinity or a value too large for dtype('float64')
-    #
-    # -> 0.9918 -- using WRONG image value correction
 color_space = 'HLS'         # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
-    # -> 0.9924
 orient = 9                  # HOG orientations
 pix_per_cell = 8            # HOG pixels per cell
 cell_per_block = 2          # HOG cells per block
@@ -52,12 +40,6 @@ spatial_feat = True         # Spatial features on or off
 hist_feat = True            # Histogram features on or off
 hog_feat = True             # HOG features on or off
 
-
-#n_samples = 500
-#random_indices = np.random.randint(0, len(cars), n_samples)
-#test_cars = np.array(cars)[random_indices]
-#random_indices = np.random.randint(0, len(cars), n_samples)
-#test_notcars = np.array(notcars)[random_indices]
 
 def save_classifier(svc, X_scaler,
         color_space,
