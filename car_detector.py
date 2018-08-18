@@ -135,8 +135,9 @@ def find_cars(image, heatmap_threshold = 7, return_heatmap=False, use_heatmap_hi
 VIDEO_MODE = False
 # following settings are only used in image mode atm (but would work during video mode as well)
 RETURN_HEATMAP = True
-USE_HEATMAP_HISTORY = False
-USE_CONSECUTIVE_IMAGES = False
+USE_HEATMAP_HISTORY = True
+USE_CONSECUTIVE_IMAGES = True
+NR_OF_CONSECUTIVE_IMAGES = 15
 
 if VIDEO_MODE == True:
     video_out = 'video_out.mp4'
@@ -150,8 +151,15 @@ if VIDEO_MODE == True:
     video_clip.write_videofile(video_out, audio=False)
 else:
     ## load example images
-    image_pathes = glob.glob('test_images/*')
-    #image_pathes = glob.glob('test_images/test4.jpg')
+    if USE_CONSECUTIVE_IMAGES == True:
+        image_pathes = []
+        base_path = 'data/video_sequence/'
+        for i in range(0, NR_OF_CONSECUTIVE_IMAGES + 1):
+            image_pathes.append(base_path + str(i) + '.jpg')
+    else:
+        image_pathes = glob.glob('test_images/*')
+        #image_pathes = glob.glob('test_images/test4.jpg')
+
     images = []
     titles = []
 
@@ -175,18 +183,31 @@ else:
         else:
             draw_image, heatmap = find_cars(image, heatmap_threshold = 1, return_heatmap = True, use_heatmap_history = False, limit_pix_values = limit_pix_values)
 
-            images.append(draw_image)
-            titles.append('')
-            images.append(heatmap)
-            titles.append('')
+            if USE_CONSECUTIVE_IMAGES == True:
+                # heatmap
+                heat_filename = 'output_images/heat_' + path.split('/')[-1] #last element of path should be the filename
+                plt.imshow(heatmap)
+                plt.savefig(heat_filename)
+                plt.close()
 
-    if RETURN_HEATMAP == False:
-        #fig = plt.figure(figsize=(8, 6))
-        fig = plt.figure()
-        visualize(fig, 2, 3, images, titles)
-    else:
-        fig = plt.figure(figsize=(8, 6))
-        visualize(fig, 3, 4, images, titles)
+                # image with boxes
+                filename = 'output_images/img_' + path.split('/')[-1] #last element of path should be the filename
+                img = cv2.cvtColor(draw_image, cv2.COLOR_RGB2BGR)
+                cv2.imwrite(filename, img)
+            else:
+                images.append(draw_image)
+                titles.append('')
+                images.append(heatmap)
+                titles.append('')
+
+    if USE_CONSECUTIVE_IMAGES == False:
+        #TODO dynamically calculate figure size
+        if RETURN_HEATMAP == False:
+            fig = plt.figure()
+            visualize(fig, 2, 3, images, titles)
+        else:
+            fig = plt.figure()
+            visualize(fig, 3, 4, images, titles)
 
 
 
