@@ -32,8 +32,6 @@ hist_feat = pickle_data['hist_feat']
 hog_feat = pickle_data['hog_feat']
 
 
-## load example images
-
 #y_start_stop = [380, 764]  #TODO should use multiples of windowsize
 y_start_stop = [380, 600]  #TODO should use multiples of windowsize
 overlap = 0.7
@@ -72,13 +70,14 @@ def draw_labeled_bboxes(img, labels):
 
 heatmap_history = None
 
-def find_cars(image):
+def find_cars(image, heatmap_threshold = 7, return_heatmap=False, use_heatmap_history=True, limit_pix_values=True):
     global heatmap_history
 
-    #TODO might make sense, to convert png data during training, so we can save thos calulations during video processing
-    # value conversion to fit into png-trained kernel
-    image = image.astype(np.float32)/255
-    #print(np.min(image), np.max(image), np.mean(image))
+    if limit_pix_values == True:
+        #TODO might make sense, to convert png data during training, so we can save thos calulations during video processing
+        # value conversion to fit into png-trained kernel
+        image = image.astype(np.float32)/255
+        #print(np.min(image), np.max(image), np.mean(image))
 
     windows_96 = slide_window(image, x_start_stop = [None, None], y_start_stop = y_start_stop,
                                xy_window=(96, 96), xy_overlap=(overlap, overlap))
@@ -99,7 +98,7 @@ def find_cars(image):
     heat = np.zeros_like(image[:,:,0]).astype(np.float)
 
     hist_length = 15
-    if heatmap_history == None:
+    if (heatmap_history == None) or (use_heatmap_history == False):
         #TODO zero out the history or start with initial values?
         heatmap_history = np.repeat([heat], hist_length, axis=0)
 
@@ -113,7 +112,7 @@ def find_cars(image):
     heatmap = np.sum(heatmap_history, axis=0)
 
     # Apply threshold to help remove false positives
-    heatmap = apply_threshold(heatmap, 7)
+    heatmap = apply_threshold(heatmap, heatmap_threshold)
 
     # smooth heatmap data
     heatmap = np.clip(heatmap, 0, 255)
@@ -124,18 +123,68 @@ def find_cars(image):
     #TODO might make sense, to convert png data during training, so we can save thos calulations during video processing
     # inverse value conversion to make picture fit into video format again
     image = (image * 255).astype(np.uint8)
+
+    if return_heatmap == True:
+        return draw_labeled_bboxes(np.copy(image), labels), heatmap
     return draw_labeled_bboxes(np.copy(image), labels)
 
 
-video_out = 'video_out.mp4'
-#video_in = VideoFileClip('test_video.mp4')
-video_in = VideoFileClip('project_video.mp4')
-video_in = video_in.subclip(27, 35)
 
-print("processing video...")
+VIDEO_MODE = True
+# following settings are only used in image mode atm (but would work during video mode as well)
+RETURN_HEATMAP = True
+USE_HEATMAP_HISTORY = False
+USE_CONSECUTIVE_IMAGES = False
 
-video_clip = video_in.fl_image(find_cars)
-video_clip.write_videofile(video_out, audio=False)
+if VIDEO_MODE == True:
+    video_out = 'video_out.mp4'
+    #video_in = VideoFileClip('test_video.mp4')
+    video_in = VideoFileClip('project_video.mp4')
+    video_in = video_in.subclip(27, 29)
+
+    print("processing video...")
+
+    video_clip = video_in.fl_image(find_cars)
+    video_clip.write_videofile(video_out, audio=False)
+else:
+    ## load example images
+    image_pathes = glob.glob('test_images/*')
+    #image_pathes = glob.glob('test_images/test4.jpg')
+    images = []
+    titles = []
+
+    for path in image_pathes:
+        t = time.time()
+        image = mpimg.imread(path)
+        draw_image = np.copy(image)
+        limit_pix_values = False
+        if (path.endswith(".jpg") or path.endswith(".jpeg")):
+            #image = image.astype(np.float32)/255
+            limit_pix_values = True
+
+        if RETURN_HEATMAP == False:
+            draw_image = find_cars(image, heatmap_threshold = 1, return_heatmap = False, use_heatmap_history = False, limit_pix_values = limit_pix_values)
+
+            images.append(draw_image)
+            titles.append('')
+
+        else:
+            draw_image, heatmap = find_cars(image, heatmap_threshold = 1, return_heatmap = True, use_heatmap_history = False, limit_pix_values = limit_pix_values)
+
+            images.append(heatmap)
+            titles.append('')
+            images.append(draw_image)
+            titles.append('')
+
+    if RETURN_HEATMAP == False:
+        #fig = plt.figure(figsize=(8, 6))
+        fig = plt.figure()
+        visualize(fig, 2, 3, images, titles)
+    else:
+        fig = plt.figure(figsize=(8, 6))
+        visualize(fig, 3, 4, images, titles)
+
+
 
 
 
