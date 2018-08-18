@@ -12,6 +12,8 @@ import pickle
 # Import everything needed to edit/save/watch video clips
 from moviepy.editor import VideoFileClip
 
+# progress bar
+from tqdm import tqdm
 
 ## load classifier from pickle file
 PICKLE_FILE_NAME = 'classifier_data.p'
@@ -130,7 +132,7 @@ def find_cars(image, heatmap_threshold = 7, return_heatmap=False, use_heatmap_hi
 
 
 
-VIDEO_MODE = True
+VIDEO_MODE = False
 # following settings are only used in image mode atm (but would work during video mode as well)
 RETURN_HEATMAP = True
 USE_HEATMAP_HISTORY = False
@@ -153,7 +155,9 @@ else:
     images = []
     titles = []
 
-    for path in image_pathes:
+    print("processing {} images...".format(len(image_pathes)))
+
+    for path in tqdm(image_pathes):
         t = time.time()
         image = mpimg.imread(path)
         draw_image = np.copy(image)
@@ -171,9 +175,9 @@ else:
         else:
             draw_image, heatmap = find_cars(image, heatmap_threshold = 1, return_heatmap = True, use_heatmap_history = False, limit_pix_values = limit_pix_values)
 
-            images.append(heatmap)
-            titles.append('')
             images.append(draw_image)
+            titles.append('')
+            images.append(heatmap)
             titles.append('')
 
     if RETURN_HEATMAP == False:
