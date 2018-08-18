@@ -16,7 +16,7 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 [image1]: ./examples/car_not_car.png
-[image2]: ./examples/HOG_example.jpg
+[image2]: ./examples/HOG_example.png
 [image3]: ./examples/sliding_windows.jpg
 [image4]: ./examples/sliding_window.jpg
 [image5]: ./examples/bboxes_and_heat.png
@@ -38,26 +38,42 @@ You're reading it!
 
 #### 1. Explain how (and identify where in your code) you extracted HOG features from the training images.
 
-The code for this step is contained in the first code cell of the IPython notebook (or in lines # through # of the file called `some_file.py`).  
-
-I started by reading in all the `vehicle` and `non-vehicle` images.  Here is an example of one of each of the `vehicle` and `non-vehicle` classes:
+For training i had a set of `8792 car` samples and `8968 non-car` samples. you can find an example of each class in the following image.
 
 ![alt text][image1]
 
-I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I grabbed random images from each of the two classes and displayed them to get a feel for what the `skimage.hog()` output looks like.
+First of all i collected most of the stuff shown during the last lesson within a file called `lesson_functions.py`.
+Then, to get a rough feeling about the possible parameters and their influence on the HOG features, i created a small script named `hog_sample.py`.
 
-Here is an example using the `YCrCb` color space and HOG parameters of `orientations=8`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`:
-
+Here is an example using the `RGB` color space and HOG parameters of `orientations=6`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`:
 
 ![alt text][image2]
 
+
 #### 2. Explain how you settled on your final choice of HOG parameters.
 
-I tried various combinations of parameters and...
+I tried various combinations of parameters and got a suitable starting set which can be found at `hog_sample.py` lines 38-48. Later, during my first attemts to train an SVC on those features, i changed those values after some additional trial-and-error hours ;)
+
+| parameter         		| values from the first guess	after using `hog_sample.py`| second parameter set after first training attemts |
+|:---------------------:|:---------------:|:---------------:|
+| color_space |	RGB | HLS 	|
+| orient |	6 | 9	|
+| pix_per_cell |  8	| 8	|
+| cell_per_block |  2	| 2	|
+| hog_channel | 0	| ALL	|
+| spatial_size |  (16, 16)	| (32, 32)	|
+| hist_bins | 16	| 32	|
+| spatial_feat | True	| True	|
+| hist_feat |	True | True	|
+| hog_feat | True	| True	|
+
 
 #### 3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
-I trained a linear SVM using...
+I used the resulting features to train a linear SVC after normalizing them using a StandardScaler, which lead to an accuracy of 99.49% on the test set. You can find the code in a file called `train_classifier.py`. Most intresing here should be function `train(...)` which can be found at line 77++.
+
+since i was not sure about the parameters for feature extraction i created a function called `deviate_config`, in which i generated several combinations of parameter sets (similar to sklearn.grid_search.GridSearchCV) and applied them all onto the full data set, to tweak my parameters.
+
 
 ### Sliding Window Search
 
