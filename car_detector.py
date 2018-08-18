@@ -66,11 +66,16 @@ def draw_labeled_bboxes(img, labels):
         # Define a bounding box based on min/max x and y
         bbox = ((np.min(nonzerox), np.min(nonzeroy)), (np.max(nonzerox), np.max(nonzeroy)))
         # Draw the box on the image
-        cv2.rectangle(img, bbox[0], bbox[1], (1, 1, 0), 3)
+        cv2.rectangle(img, bbox[0], bbox[1], (255, 255, 0), 3)
     # Return the image
     return img
 
 def find_cars(image):
+    #TODO might make sense, to convert png data during training, so we can save thos calulations during video processing
+    # value conversion to fit into png-trained kernel
+    image = image.astype(np.float32)/255
+    #print(np.min(image), np.max(image), np.mean(image))
+
     windows_96 = slide_window(image, x_start_stop = [None, None], y_start_stop = y_start_stop,
                                xy_window=(96, 96), xy_overlap=(overlap, overlap))
     windows_128 = slide_window(image, x_start_stop = [None, None], y_start_stop = y_start_stop,
@@ -100,12 +105,17 @@ def find_cars(image):
 
     # Find final boxes from heatmap using label function
     labels = label(heatmap)
+
+    #TODO might make sense, to convert png data during training, so we can save thos calulations during video processing
+    # inverse value conversion to make picture fit into video format again
+    image = (image * 255).astype(np.uint8)
     return draw_labeled_bboxes(np.copy(image), labels)
 
 
 video_out = 'video_out.mp4'
 #video_in = VideoFileClip('test_video.mp4')
 video_in = VideoFileClip('project_video.mp4')
+#video_in = video_in.subclip(7, 9)
 
 print("processing video...")
 
