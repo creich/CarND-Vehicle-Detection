@@ -20,7 +20,7 @@ The goals / steps of this project are the following:
 [image3]: ./examples/sliding_window_pattern.png
 [image4]: ./examples/sliding_window_results.png
 [image5]: ./examples/bboxes_and_heat.png
-[video1]: ./project_video.mp4
+[video1]: ./video_out.mp4
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -96,7 +96,7 @@ As shown in the table of parameters above i combine spatially binned color, hist
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
 
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](./video_out.mp4)
 
 
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
