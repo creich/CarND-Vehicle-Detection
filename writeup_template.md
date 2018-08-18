@@ -89,7 +89,7 @@ here you can see the pattern i am using with different colors for different wind
 
 #### 2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
-As shown in the table of parameters above i combine spatially binned color, histograms of color and the HOG-features. The combination of allof those features gave pretty promising results as you can see here:
+As shown in the table of parameters above i combine spatially binned color, histograms of color and the HOG-features. The combination of allof those features gave pretty promising results as you can see here (even thogh there are still some false positives):
 
 ![alt text][image4]
 ---
